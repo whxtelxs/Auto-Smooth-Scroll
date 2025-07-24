@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'unsafe-inline'; script-src 'self'">
+    <title>Auto Smooth Scroll</title>
+    <style>
+        :root {
+            --color-primary: #2c2c2c;
+            --color-secondary: #666666;
+            --color-muted: #cccccc;
+            --color-background: #ffffff;
+            --color-surface: #fafafa;
+            --color-border: #e0e0e0;
+            --color-border-light: #f0f0f0;
+            --color-hover: #f8f8f8;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 12px;
+            --spacing-lg: 16px;
+            --spacing-xl: 20px;
+            --spacing-xxl: 24px;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-md: 16px;
+            --border-radius: 0px;
+            --transition: all 0.15s ease;
+        }
+
+        body {
+            width: 280px;
+            padding: var(--spacing-xl);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-background);
+            color: var(--color-primary);
+            margin: 0;
+            border: 1px solid var(--color-border-light);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: var(--spacing-xxl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--color-border-light);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: var(--font-size-md);
+            font-weight: 400;
+            color: var(--color-primary);
+            letter-spacing: 0.5px;
+        }
+
+        .control-group {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: var(--spacing-sm);
+            font-size: var(--font-size-sm);
+            font-weight: 400;
+            color: var(--color-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .speed-control,
+        .delay-control {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .speed-slider,
+        .delay-slider {
+            flex: 1;
+            height: 2px;
+            background: var(--color-border);
+            border-radius: var(--border-radius);
+            outline: none;
+            appearance: none;
+        }
+
+        .speed-slider::-webkit-slider-thumb,
+        .delay-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: var(--spacing-md);
+            height: var(--spacing-md);
+            background: var(--color-primary);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+        }
+
+        .speed-value,
+        .delay-value {
+            min-width: var(--spacing-xxl);
+            text-align: center;
+            font-size: var(--font-size-xs);
+            color: var(--color-primary);
+            border: 1px solid var(--color-border);
+            padding: var(--spacing-xs) 6px;
+            background: var(--color-surface);
+        }
+
+        .direction-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 1px;
+            margin-top: var(--spacing-sm);
+            border: 1px solid var(--color-border);
+        }
+
+        .direction-btn {
+            background: var(--color-background);
+            border: none;
+            color: var(--color-secondary);
+            padding: var(--spacing-lg) var(--spacing-md);
+            cursor: pointer;
+            font-size: var(--font-size-xs);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 45px;
+            border-right: 1px solid var(--color-border);
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .direction-btn:hover {
+            background: var(--color-hover);
+            color: var(--color-primary);
+        }
+
+        .direction-btn.active {
+            background: var(--color-primary);
+            color: var(--color-background);
+        }
+
+        .direction-btn:nth-child(1) {
+            grid-column: 1;
+            grid-row: 1;
+        }
+
+        .direction-btn:nth-child(2) {
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .direction-btn:nth-child(3) {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .direction-btn:nth-child(4) {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1px;
+            margin-top: var(--spacing-xxl);
+            border: 1px solid var(--color-border);
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 14px var(--spacing-md);
+            border: none;
+            background: var(--color-background);
+            font-size: var(--font-size-sm);
+            font-weight: 400;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--color-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .start-btn:hover:not(:disabled) {
+            background: var(--color-border-light);
+        }
+
+        .start-btn:disabled {
+            background: var(--color-surface);
+            color: var(--color-muted);
+            cursor: not-allowed;
+        }
+
+        .stop-btn {
+            border-left: 1px solid var(--color-border);
+        }
+
+        .stop-btn:hover:not(:disabled) {
+            background: var(--color-border-light);
+        }
+
+        .stop-btn:disabled {
+            background: var(--color-surface);
+            color: var(--color-muted);
+            cursor: not-allowed;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: var(--spacing-lg);
+            font-size: var(--font-size-xs);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--color-surface);
+            color: var(--color-secondary);
+            border: 1px solid var(--color-border-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Auto Smooth Scroll</h1>
+    </div>
+
+    <div class="control-group">
+        <label>Скорость скролла</label>
+        <div class="speed-control">
+            <input type="range" class="speed-slider" id="speedSlider" min="1" max="20" value="5">
+            <div class="speed-value" id="speedValue">5</div>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label>Задержка запуска</label>
+        <div class="delay-control">
+            <input type="range" class="delay-slider" id="delaySlider" min="0" max="5" value="0">
+            <div class="delay-value" id="delayValue">Без</div>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <label>Направление</label>
+        <div class="direction-grid">
+            <button class="direction-btn" data-direction="up">↑ Вверх</button>
+            <button class="direction-btn" data-direction="right">→ Вправо</button>
+            <button class="direction-btn active" data-direction="down">↓ Вниз</button>
+            <button class="direction-btn" data-direction="left">← Влево</button>
+
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn start-btn" id="startBtn">Запустить</button>
+        <button class="control-btn stop-btn" id="stopBtn" disabled>Остановить</button>
+    </div>
+
+    <div class="status" id="status">Готов к запуску</div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
