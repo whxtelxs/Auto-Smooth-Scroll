@@ -14,6 +14,12 @@ Chrome расширение для автоматического плавног
 
 ## Установка
 
+- **Автоматическая**
+
+1. Установка расширения через интернет-магазин Chrome - https://chromewebstore.google.com/detail/inllmmheiglhebpofoljjokahnhlcmpd?utm_source=item-share-cb
+
+- **Ручная**
+
 1. Откройте Chrome и перейдите в `chrome://extensions/`
 2. Включите "Режим разработчика" в правом верхнем углу
 3. Нажмите "Загрузить распакованное расширение"
