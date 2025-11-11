@@ -27,6 +27,8 @@ class ScrollExtensionPopup {
 
     #bindEvents() {
         this.#elements.speedSlider.addEventListener('input', this.#handleSpeedChange.bind(this));
+        this.#elements.speedValue.addEventListener('input', this.#handleSpeedInputChange.bind(this));
+        this.#elements.speedValue.addEventListener('blur', this.#handleSpeedInputBlur.bind(this));
         this.#elements.delaySlider.addEventListener('input', this.#handleDelayChange.bind(this));
         this.#elements.directionBtns.forEach(btn =>
             btn.addEventListener('click', this.#handleDirectionChange.bind(this))
@@ -36,7 +38,28 @@ class ScrollExtensionPopup {
     }
 
     #handleSpeedChange(e) {
-        this.#elements.speedValue.textContent = e.target.value;
+        const value = parseInt(e.target.value, 10);
+        this.#elements.speedValue.value = value;
+        this.#saveSettings();
+    }
+
+    #handleSpeedInputChange(e) {
+        const value = parseInt(e.target.value, 10);
+        if (!isNaN(value) && value >= 1 && value <= 100) {
+            this.#elements.speedSlider.value = value;
+            this.#saveSettings();
+        }
+    }
+
+    #handleSpeedInputBlur(e) {
+        let value = parseInt(e.target.value, 10);
+        if (isNaN(value) || value < 1) {
+            value = 1;
+        } else if (value > 100) {
+            value = 100;
+        }
+        this.#elements.speedValue.value = value;
+        this.#elements.speedSlider.value = value;
         this.#saveSettings();
     }
 
@@ -105,7 +128,7 @@ class ScrollExtensionPopup {
             const { speed = 5, direction = 'down', delay = 0 } = await chrome.storage.local.get(['speed', 'direction', 'delay']);
 
             this.#elements.speedSlider.value = speed;
-            this.#elements.speedValue.textContent = speed;
+            this.#elements.speedValue.value = speed;
             this.#elements.delaySlider.value = delay;
             this.#elements.delayValue.textContent = delay === 0 ? 'Без' : `${delay}с`;
             this.#state.currentDirection = direction;

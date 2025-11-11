@@ -1,11 +1,12 @@
 class AutoScroller {
     #isScrolling = false;
     #isDelaying = false;
-    #speed = 5;
+    #speed = 30;
     #direction = 'down';
     #animationId = null;
     #lastTimestamp = 0;
     #resizeObserver = null;
+    #fractionAccumulator = 0;
 
     constructor() {
         this.#setupMessageListener();
@@ -61,6 +62,7 @@ class AutoScroller {
 
         this.#isDelaying = false;
         this.#isScrolling = true;
+        this.#fractionAccumulator = 0;
         this.#lastTimestamp = performance.now();
         this.#scroll();
     }
@@ -81,12 +83,19 @@ class AutoScroller {
         const currentTimestamp = performance.now();
         const deltaTime = currentTimestamp - this.#lastTimestamp;
 
-        if (deltaTime >= 16) {
-            const scrollStep = this.#speed * (deltaTime / 16);
+        if (deltaTime >= 8) {
+            const rawStep = this.#speed * (deltaTime / 1000);
 
-            if (!this.#performScroll(scrollStep)) {
-                this.#stopScroll();
-                return;
+            this.#fractionAccumulator += rawStep;
+
+            const scrollStep = Math.floor(this.#fractionAccumulator);
+            this.#fractionAccumulator -= scrollStep;
+
+            if (scrollStep > 0) {
+                if (!this.#performScroll(scrollStep)) {
+                    this.#stopScroll();
+                    return;
+                }
             }
 
             this.#lastTimestamp = currentTimestamp;

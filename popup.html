@@ -96,7 +96,25 @@
             cursor: pointer;
         }
 
-        .speed-value,
+        .speed-value {
+            min-width: 50px;
+            width: 50px;
+            text-align: center;
+            font-size: var(--font-size-xs);
+            color: var(--color-primary);
+            border: 1px solid var(--color-border);
+            padding: var(--spacing-xs) 6px;
+            background: var(--color-surface);
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
+
+        .speed-value::-webkit-outer-spin-button,
+        .speed-value::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
         .delay-value {
             min-width: var(--spacing-xxl);
             text-align: center;
@@ -229,8 +247,8 @@
     <div class="control-group">
         <label>Скорость скролла</label>
         <div class="speed-control">
-            <input type="range" class="speed-slider" id="speedSlider" min="1" max="20" value="5">
-            <div class="speed-value" id="speedValue">5</div>
+            <input type="range" class="speed-slider" id="speedSlider" min="1" max="100" value="5">
+            <input type="number" class="speed-value" id="speedValue" min="1" max="100" value="5">
         </div>
     </div>
 
